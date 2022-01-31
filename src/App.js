@@ -1,25 +1,41 @@
-import logo from './logo.svg';
-import './App.css';
+import React, {useState, useEffect} from "react";
+import axios from 'axios';
+import Pokemon from "./components/pokemons";
+import Pagination from "./components/pogination";
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+
+export default function App() {
+  const [pokemons, setPokemons] = useState([])
+  const [loading, setLoading] = useState(false)
+  const [currentPage, setCurrentPage] = useState(1)
+  const [pokemonsPerPage] = useState(12)
+
+  useEffect(()=>{
+    const getPokemons = async () => {
+      setLoading(true)
+      const res = await axios.get('https://pokeapi.co/api/v2/pokemon?limit=100&offset=200')
+      setPokemons(res.data.results)
+      setLoading(false)
+      
+    }
+    getPokemons()
+  },[]);
+  
+  const lastPokemonsIndex = currentPage * pokemonsPerPage
+
+  const firstPokemonsIndex = lastPokemonsIndex - pokemonsPerPage
+
+  const currentPokemons = pokemons.slice(firstPokemonsIndex, lastPokemonsIndex)
+
+  const paginate = pageNumber => setCurrentPage(pageNumber)
+
+
+  return(
+    <div>
+      
+      
+      <Pokemon pokemons={currentPokemons} loading={loading} />
+      <Pagination  pokemonsPerPage={pokemonsPerPage} totalPokemons={pokemons.length} paginate={paginate} />
     </div>
-  );
+  )
 }
-
-export default App;
